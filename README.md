@@ -3,7 +3,7 @@ Vesuvius Ink Generator
 The Vesuvius Ink Generator is an attempt to use gradient ascent to generate artificial ink images starting from random noise.
 The idea is simply to start with a random cube of volumetric noise data and backpropagate the signal from a pretrained ink model to create a new ink image.
 
-![Slice of a randomly generated ink volume](http://github.com/StewartSethA/rand[2720, 128, 2784, 192]_27z_99.ink.png)
+![Slice of a randomly generated ink volume](http://github.com/StewartSethA/rand\[2720, 128, 2784, 192\]_27z_99.ink.png)
 
 Link to download generated ink volumes (as stacks of .png files):
 https://drive.google.com/file/d/173qsupr1McDwvVuHe2lBKoN8WfAQLDaJ/view?usp=sharing
