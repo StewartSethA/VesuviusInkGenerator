@@ -14,7 +14,7 @@ So far there are four primary modes of use:
 We can also do diffs to isolate the changes made to a random block or scroll segment that would maximize or minimize the ink signal.
 
 Visual for slices of a 3D volume, optimized starting from random noise to maximize the appearance of ink:
-![Slice of a randomly generated ink volume](https://github.com/StewartSethA/VesuviusInkGenerator/blob/master/randinkblock.png)
+![Slice of a randomly generated ink volume](https://github.com/StewartSethA/VesuviusInkGenerator/blob/master/samples/randinkblock.png)
 
 Link to download generated ink volumes (as stacks of .png files):
 [Download .zip of generated sample volumes](https://drive.google.com/file/d/173qsupr1McDwvVuHe2lBKoN8WfAQLDaJ/view?usp=sharing)
