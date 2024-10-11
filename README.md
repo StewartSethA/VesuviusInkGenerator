@@ -6,10 +6,10 @@ The idea is simply to start with a random cube of volumetric noise data and back
 In this way, we can visualize **what the model has been trained to look for**, and directly visualize signals that look maximally (or minimally) "inky".
 
 So far there are four primary modes of use:
-(1) Maximize ink signal starting from a random noise volume,
-(2) Maximize ink signal starting from an existing scroll volume,
-(3) Minimize ink signal starting from a random noise image,
-(4) Minimize ink signal starting from an existing scroll volume
+1. Maximize ink signal starting from a random noise volume
+2. Maximize ink signal starting from an existing scroll volume,
+3. Minimize ink signal starting from a random noise image,
+4. Minimize ink signal starting from an existing scroll volume
 
 We can also do diffs to isolate the changes made to a random block or scroll segment that would maximize or minimize the ink signal.
 
