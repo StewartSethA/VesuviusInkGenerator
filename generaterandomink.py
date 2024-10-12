@@ -273,9 +273,6 @@ def read_image_mask(fragment_id,start_idx=15,end_idx=45,rotation=0):
     #print("images.shape,dtype", images.shape, images.dtype, "mask", mask.shape, mask.dtype, "fragment_mask", fragment_mask.shape, fragment_mask.dtype)
     return images, mask,fragment_mask
 
-#from numba import vectorize
-#@vectorize
-#@jit(nopython=True)
 def generate_xyxys_ids(fragment_id, image, mask, fragment_mask, tile_size, size, stride, is_valid=True):
         is_valid = True
         xyxys = []
@@ -293,8 +290,6 @@ def generate_xyxys_ids(fragment_id, image, mask, fragment_mask, tile_size, size,
                         x1=b+xi
                         y2=y1+size
                         x2=x1+size
-                # for y2 in range(y1,y1 + tile_size,size):
-                #     for x2 in range(x1, x1 + tile_size,size):
                         if False and not is_valid:
                             if not np.all(np.less(mask[a:a + tile_size, b:b + tile_size],0.01)):
                                 if not np.any(np.equal(fragment_mask[a:a+ tile_size, b:b + tile_size],0)):
@@ -478,8 +473,6 @@ class CustomDatasetTest(Dataset):
 
         return image,xy
 
-
-
 # from resnetall import generate_model
 def init_weights(m):
     if isinstance(m, nn.Conv2d):
@@ -508,8 +501,6 @@ class Decoder(nn.Module):
         mask = self.up(x)
         return mask
 
-
-
 class RegressionPLModel(pl.LightningModule):
     def __init__(self,pred_shape,size=256,enc='',with_norm=False):
         super(RegressionPLModel, self).__init__()
@@ -527,9 +518,6 @@ class RegressionPLModel(pl.LightningModule):
 
         if self.hparams.with_norm:
             self.normalization=nn.BatchNorm3d(num_features=1)
-
-
-
             
     def forward(self, x):
         if x.ndim==4:
@@ -614,72 +602,6 @@ def scheduler_step(scheduler, avg_val_loss, epoch):
     scheduler.step(epoch)
    
 
-
-'''
-fragment_id = CFG.valid_id
-
-valid_mask_gt = cv2.imread(CFG.comp_dataset_path + f"train_scrolls/{fragment_id}/{fragment_id}_inklabels.png", 0)
-# valid_mask_gt=cv2.resize(valid_mask_gt,(valid_mask_gt.shape[1]//2,valid_mask_gt.shape[0]//2),cv2.INTER_AREA)
-pred_shape=valid_mask_gt.shape
-torch.set_float32_matmul_precision('medium')
-
-fragments=['20230820203112']
-enc_i,enc,fold=0,'i3d',0
-for fid in fragments:
-    CFG.valid_id=fid
-    fragment_id = CFG.valid_id
-    run_slug=f'training_scrolls_valid={fragment_id}_{CFG.size}x{CFG.size}_submissionlabels_wild11'
-
-    valid_mask_gt = cv2.imread(CFG.comp_dataset_path + f"train_scrolls/{fragment_id}/{fragment_id}_inklabels.png", 0)
-
-    pred_shape=valid_mask_gt.shape
-    train_images, train_masks, train_xyxys, train_ids, valid_images, valid_masks, valid_xyxys, valid_ids = get_train_valid_dataset()
-    print(len(train_images))
-    valid_xyxys = np.stack(valid_xyxys)
-    train_dataset = CustomDataset(
-        train_images, CFG, labels=train_masks, xyxys=train_xyxys, ids=train_ids, transform=get_transforms(data='train', cfg=CFG))
-    valid_dataset = CustomDataset(
-        valid_images, CFG,xyxys=valid_xyxys, labels=valid_masks, ids=valid_ids, transform=get_transforms(data='valid', cfg=CFG))
-
-    train_loader = DataLoader(train_dataset,
-                                batch_size=CFG.train_batch_size,
-                                shuffle=True,
-                                num_workers=CFG.num_workers, pin_memory=True, drop_last=True,
-                                )
-    valid_loader = DataLoader(valid_dataset,
-                                batch_size=CFG.valid_batch_size,
-                                shuffle=False,
-                                num_workers=CFG.num_workers, pin_memory=True, drop_last=True)
-
-    wandb_logger = WandbLogger(project="vesivus",name=run_slug+f'{enc}_finetune')
-    norm=fold==1
-    model=RegressionPLModel(enc='i3d',pred_shape=pred_shape,size=CFG.size)
-
-    print('FOLD : ',fold)
-    wandb_logger.watch(model, log="all", log_freq=100)
-    multiplicative = lambda epoch: 0.9
-
-    trainer = pl.Trainer(
-        max_epochs=24,
-        accelerator="gpu",
-        devices=8,
-        logger=wandb_logger,
-        default_root_dir="./", #/content/gdrive/MyDrive/vesuvius_model/training/outputs",
-        accumulate_grad_batches=1,
-        precision='16-mixed',
-        gradient_clip_val=1.0,
-        gradient_clip_algorithm="norm",
-        strategy='ddp_find_unused_parameters_true',
-        callbacks=[ModelCheckpoint(filename=f'wild12_64_{fid}_{fold}_fr_{enc}'+'{epoch}',dirpath=CFG.model_dir,monitor='train/total_loss',mode='min',save_top_k=CFG.epochs),
-
-                    ],
-
-    )
-    trainer.fit(model=model, train_dataloaders=train_loader, val_dataloaders=valid_loader)
-
-    wandb.finish()
-'''
-
 def predict_fn(test_loader, model, device, test_xyxys,pred_shape):
     mask_pred = np.zeros(pred_shape) #, dtype=np.uint8)
     rand_pred = np.zeros(pred_shape) #, dtype=np.uint8)
@@ -712,13 +634,16 @@ def predict_fn(test_loader, model, device, test_xyxys,pred_shape):
     inkmaximized = np.zeros((30, pred_shape[0], pred_shape[1]), dtype=np.float16)
     inkmaximizedrand = np.zeros((30, pred_shape[0], pred_shape[1]), dtype=np.float16)
     for step, (images,xys) in tqdm(enumerate(test_loader),total=len(test_loader)):
-        print("Sending images to device", images.shape)
-        images = images.half().to(device) # SethS half.
-        imagesrand = torch.rand(images.shape, requires_grad=True, device=images.device, dtype=images.dtype) #* .7842
-        imagesrandnoink = imagesrand.clone().detach().requires_grad_(True) #torch.rand(images.shape, requires_grad=True, device=images.device, dtype=images.dtype) #* .7842
+       
+        # Create template images for gradient ascent visualization
+        images = images.half().to(device)
+        imagesrand = torch.rand(images.shape, requires_grad=True, device=images.device, dtype=images.dtype) # Max normalize value is .7842 for scroll content
+        imagesrandnoink = imagesrand.clone().detach().requires_grad_(True)
         imagesrandorig = imagesrand.clone().detach().requires_grad_(True)
         batch_size = images.size(0)
-        print("Runninginference on images", step, images.shape, images.device, model.device)
+
+        # Run the model to obtain gradients on the inputs
+        print("Running inference on images", step, images.shape, images.device, model.device)
         with torch.no_grad():
             y_preds = model.half()(images)
             z_preds = model(imagesrand)
@@ -726,20 +651,15 @@ def predict_fn(test_loader, model, device, test_xyxys,pred_shape):
             print("z_preds", z_preds.shape, z_preds.min(), z_preds.max(), z_preds.mean(), z_preds.std())
             print("images", images.shape, images.min(), images.max(), images.mean(), images.std())
             print("imagesrand", imagesrand.shape, imagesrand.min(), imagesrand.max(), imagesrand.mean(), imagesrand.std())
-            # y_preds =TTA(images,model)
-        # y_preds = y_preds.to('cpu').numpy()
-        #model = model.float()
-        #from flashtorch.activmax import GradientAscent
-        #gas = GradientAscent(model.decoder.logit)
-        #out = gas.deepdream(img_path, layer,filter_idx, lr, num_iter, figsize=(4,4), title="DeepDream", return_output=True)
-        #w_preds = gas.visualize(model.decoder.logit, filter_idx=0, lr=0.1, num_iter=20, num_subplots=4, figsize=(4,4), title="Ink maximization", return_output=True)
-        
-        imagesgrad = images.clone().detach().requires_grad_(True) #torch.tensor(images, requires_grad=True, device=images.device, dtype=images.dtype)
-        imagesgradnoink = images.clone().detach().requires_grad_(True) #torch.tensor(images, requires_grad=True, device=images.device, dtype=images.dtype)
+
+        # Create template images for gradient ascent visualization
+        imagesgrad = images.clone().detach().requires_grad_(True)
+        imagesgradnoink = images.clone().detach().requires_grad_(True)
         imagesgradorig = imagesrand.clone().detach().requires_grad_(True)
         optimizer = torch.optim.SGD([imagesgrad,], lr=100000)
         optimizer2 = torch.optim.SGD([imagesrand,], lr=100000)
 
+        # Define the hook function to save activations
         def gradup(image, model, alpha, theta_decay = 0.2):
           image.retain_grad()
           global activations
@@ -750,27 +670,8 @@ def predict_fn(test_loader, model, device, test_xyxys,pred_shape):
           image = torch.mul(image, (1.0 - theta_decay)).requires_grad_(True)
           return image.half(), loss, pred
 
-        #model = model.float()
         alpha = torch.tensor(10000) # LR
         for i in tqdm(range(50)):
-          '''
-          imagesgrad.retain_grad()
-          optimizer.zero_grad()
-          predtemp = model.float()(imagesgrad.float())
-          #print("activations.shape", activations.shape) # 256, 1, 16, 16
-          #"Len of activations", len(activations), "shape", [a.shape for a in activations])
-          loss = - activations[:, 0, :, :].mean()
-          print("loss", loss)
-          #print("grad_fn", loss.grad_fn, predtemp.grad_fn, activations[-1].grad_fn)
-          loss.backward(retain_graph=True) #retain_graph = True)
-          #optimizer.step()
-          imagegrad = imagesgrad.grad
-          imagesgrad = torch.add(imagesgrad, torch.mul(imagegrad, alpha))
-          theta_decay = 0.1
-          imagesgrad = torch.mul(imagesgrad, (1.0 - theta_decay)).requires_grad_(True)
-          '''
-
-          
           imagesgrad, loss, pred = gradup(imagesgrad, model, alpha)
           print("Loss:", loss, "gradstats", imagesgrad[0,0].min(), imagesgrad[0,0].max(), imagesgrad[0,0].mean())
           #for d in range(imagesgrad.shape[2]):
@@ -821,7 +722,9 @@ def predict_fn(test_loader, model, device, test_xyxys,pred_shape):
         y_preds = torch.sigmoid(y_preds).to('cpu')
         z_preds = torch.sigmoid(z_preds).to('cpu')
         print("xys", len(xys), xys[-4:])
-        
+
+        # OPTIONAL step:
+        '''
         for i, (x1, y1, x2, y2) in enumerate(xys):
             mask_pred[y1:y2, x1:x2] += np.multiply(F.interpolate(y_preds[i].unsqueeze(0).float(),scale_factor=4,mode='bilinear').squeeze(0).squeeze(0).numpy(),kernel)
             mask_count[y1:y2, x1:x2] += np.ones((CFG.size, CFG.size))
@@ -829,6 +732,7 @@ def predict_fn(test_loader, model, device, test_xyxys,pred_shape):
             mask_count[y1:y2, x1:x2] += np.ones((CFG.size, CFG.size))
             inkmaximized[:, y1:y2, x1:x2] += imagesgrad[i,0].detach().cpu().numpy()
             inkmaximizedrand[:, y1:y2, x1:x2] += imagesrand[i,0].detach().cpu().numpy()
+        '''
 
     mask_pred /= mask_count
     mask_pred *= 2  #max(1, mask_count)
@@ -846,19 +750,6 @@ def get_img_splits(fragment_id,s,e,rotation=0):
     images = []
     xyxys = []
     fragment_mask = None
-    #image,mask,fragment_mask = read_image_mask(fragment_id,s,e,rotation)
-    #x1_list = list(range(0, image.shape[1]-CFG.tile_size+1, CFG.stride))
-    #y1_list = list(range(0, image.shape[0]-CFG.tile_size+1, CFG.stride))
-    #print("Arranging image tiles for training dataset...")
-    #ids = [fragment_id] * 
-    #for y1 in y1_list:
-    #    for x1 in x1_list:
-    #        y2 = y1 + CFG.tile_size
-    #        x2 = x1 + CFG.tile_size
-    #        if not np.any(fragment_mask[y1:y2, x1:x2]==0):
-    #            images.append(image[y1:y2, x1:x2])
-    #            xyxys.append([x1, y1, x2, y2])
-    #print("Done arranging image tiles.")
     images, mask, xyxys, ids = get_xyxys([fragment_id], is_valid=True)
     test_dataset = CustomDatasetTest(images,np.stack(xyxys), ids, CFG,transform=A.Compose([
         A.Resize(CFG.size, CFG.size),
