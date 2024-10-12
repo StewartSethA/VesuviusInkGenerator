@@ -674,30 +674,30 @@ def predict_fn(test_loader, model, device, test_xyxys,pred_shape):
         for i in tqdm(range(50)):
           imagesgrad, loss, pred = gradup(imagesgrad, model, alpha)
           print("Loss:", loss, "gradstats", imagesgrad[0,0].min(), imagesgrad[0,0].max(), imagesgrad[0,0].mean())
-          #for d in range(imagesgrad.shape[2]):
-          #  cv2.imwrite("ink"+str(xys[0].tolist())+"_"+str(d)+"z_"+str(i)+".png", (255*norm(imagesgrad[0,0,d].detach().cpu().numpy())).astype(np.uint8))
-          #  cv2.imwrite("meansubink"+str(xys[0].tolist())+"_"+str(d)+"z_"+str(i)+".png", (255*norm((imagesgrad[0,0,d]-imagesgradorig[0,0,d]).detach().cpu().numpy())).astype(np.uint8))
+          for d in range(imagesgrad.shape[2]):
+            cv2.imwrite("ink"+str(xys[0].tolist())+"_"+str(d)+"z_"+str(i)+".png", (255*norm(imagesgrad[0,0,d].detach().cpu().numpy())).astype(np.uint8))
+            cv2.imwrite("meansubink"+str(xys[0].tolist())+"_"+str(d)+"z_"+str(i)+".png", (255*norm((imagesgrad[0,0,d]-imagesgradorig[0,0,d]).detach().cpu().numpy())).astype(np.uint8))
           #images = images + self.gradients * self.lr
           #imshow('images', images[0].detach().cpu().float().numpy())
 
           imagesgradnoink, loss, pred = gradup(imagesgradnoink, model, -alpha)
           print("Loss:", loss, "gradstats", imagesgradnoink[0,0].min(), imagesgradnoink[0,0].max(), imagesgradnoink[0,0].mean())
-          #for d in range(imagesgradnoink.shape[2]):
-          #  cv2.imwrite("noink"+str(xys[0].tolist())+"_"+str(d)+"z_"+str(i)+".png", (255*norm(imagesgradnoink[0,0,d].detach().cpu().numpy())).astype(np.uint8))
-          #  cv2.imwrite("meansubnoink"+str(xys[0].tolist())+"_"+str(d)+"z_"+str(i)+".png", (255*norm((imagesgradnoink[0,0,d]-imagesgradorig[0,0,d]).detach().cpu().numpy())).astype(np.uint8))
+          for d in range(imagesgradnoink.shape[2]):
+            cv2.imwrite("noink"+str(xys[0].tolist())+"_"+str(d)+"z_"+str(i)+".png", (255*norm(imagesgradnoink[0,0,d].detach().cpu().numpy())).astype(np.uint8))
+            cv2.imwrite("meansubnoink"+str(xys[0].tolist())+"_"+str(d)+"z_"+str(i)+".png", (255*norm((imagesgradnoink[0,0,d]-imagesgradorig[0,0,d]).detach().cpu().numpy())).astype(np.uint8))
 
           imagesrandnoink, loss, pred = gradup(imagesrandnoink, model, -alpha)
           print("Loss:", loss, "randstats", imagesrandnoink[0,0].min(), imagesrandnoink[0,0].max(), imagesrandnoink[0,0].mean())
-          #for d in range(imagesrandnoink.shape[2]):
-          #  cv2.imwrite("randnoink_"+str(xys[0].tolist())+"_"+str(d)+"z_"+str(i)+".png", (255*norm(imagesrandnoink[0,0,d].detach().cpu().numpy())).astype(np.uint8))
-          #  cv2.imwrite("randmeansubnoink_"+str(xys[0].tolist())+"_"+str(d)+"z_"+str(i)+".png", (255*norm((imagesrandnoink[0,0,d]-imagesrandorig[0,0,d]).detach().cpu().numpy())).astype(np.uint8))
+          for d in range(imagesrandnoink.shape[2]):
+            cv2.imwrite("randnoink_"+str(xys[0].tolist())+"_"+str(d)+"z_"+str(i)+".png", (255*norm(imagesrandnoink[0,0,d].detach().cpu().numpy())).astype(np.uint8))
+            cv2.imwrite("randmeansubnoink_"+str(xys[0].tolist())+"_"+str(d)+"z_"+str(i)+".png", (255*norm((imagesrandnoink[0,0,d]-imagesrandorig[0,0,d]).detach().cpu().numpy())).astype(np.uint8))
 
           imagesrand, loss, pred = gradup(imagesrand, model, -alpha)
           print("Loss:", loss, "randstats", imagesrand[0,0].min(), imagesrand[0,0].max(), imagesrand[0,0].mean())
-          #for d in range(imagesrand.shape[2]):
-          #  cv2.imwrite("rand_"+str(xys[0].tolist())+"_"+str(d)+"z_"+str(i)+".png", (255*norm(imagesrand[0,0,d].detach().cpu().numpy())).astype(np.uint8))
-          #  cv2.imwrite("randmeansub_"+str(xys[0].tolist())+"_"+str(d)+"z_"+str(i)+".png", (255*norm((imagesrand[0,0,d]-imagesrandorig[0,0,d]).detach().cpu().numpy())).astype(np.uint8))
-          '''
+          for d in range(imagesrand.shape[2]):
+            cv2.imwrite("rand_"+str(xys[0].tolist())+"_"+str(d)+"z_"+str(i)+".png", (255*norm(imagesrand[0,0,d].detach().cpu().numpy())).astype(np.uint8))
+            cv2.imwrite("randmeansub_"+str(xys[0].tolist())+"_"+str(d)+"z_"+str(i)+".png", (255*norm((imagesrand[0,0,d]-imagesrandorig[0,0,d]).detach().cpu().numpy())).astype(np.uint8))
+          
           imagesrand.retain_grad()
           #optimizer2.zero_grad()
           predtemp2 = model(imagesrand)
@@ -715,7 +715,7 @@ def predict_fn(test_loader, model, device, test_xyxys,pred_shape):
           for d in range(imagesrand.shape[2]):
             cv2.imwrite("randink"+str(xys[0].tolist())+"_"+str(d)+"z_"+str(i)+".png", (255*norm(imagesrand[0,0,d].detach().cpu().numpy())).astype(np.uint8))
             cv2.imwrite("randmeansubink"+str(xys[0].tolist())+"_"+str(d)+"z_"+str(i)+".png", (255*norm((imagesrand[0,0,d]-imagesrandorig[0,0,d]).detach().cpu().numpy())).astype(np.uint8))
-          '''
+          
           #imshow('imagesrand', imagesrand[0].detach().cpu().float().numpy())
           #cv2.waitKey(1)
 
@@ -723,7 +723,7 @@ def predict_fn(test_loader, model, device, test_xyxys,pred_shape):
         z_preds = torch.sigmoid(z_preds).to('cpu')
         print("xys", len(xys), xys[-4:])
 
-        # OPTIONAL step:
+        # OPTIONAL step to try to assemble patches into a whole image:
         '''
         for i, (x1, y1, x2, y2) in enumerate(xys):
             mask_pred[y1:y2, x1:x2] += np.multiply(F.interpolate(y_preds[i].unsqueeze(0).float(),scale_factor=4,mode='bilinear').squeeze(0).squeeze(0).numpy(),kernel)
