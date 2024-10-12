@@ -15,10 +15,11 @@ We can also do diffs to isolate the changes made to a random block or scroll seg
 
 <h2>How to Generate Ink Images</h2>
 To generate random ink images, run
-```
+
+```python
 python generaterandomink.py
 ```
-The dataloader expects there to be an eval_scrolls directory and a train_scrolls directory containing the segment(s) to be used.
+The dataloader expects there to be an ```eval_scrolls``` directory and a ```train_scrolls``` directory containing the segment(s) to be used.
 
 TODO: Add random-only mode that requires no data to be downloaded
 
