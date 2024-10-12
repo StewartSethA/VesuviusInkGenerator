@@ -25,13 +25,10 @@ TODO: Add random-only mode that requires no data to be downloaded
 
 <h2>Generated sample images</h2>
 Visual for slices of a 3D volume, optimized starting from random noise to maximize the appearance of ink:
+
 ![Slice of a randomly generated ink volume](https://github.com/StewartSethA/VesuviusInkGenerator/blob/master/samples/randinkblock.png)
 
-![Ink sample generated from scroll patch 1; relative_z=25](https://github.com/StewartSethA/VesuviusInkGenerator/blob/master/samples/[2720, 128, 2784, 192]_25z_99.ink.png){ width: 300px; }
-![Ink sample generated from scroll patch 2; relative_z=7](https://github.com/StewartSethA/VesuviusInkGenerator/blob/master/samples/[2720, 128, 2784, 192]_7z_30.ink.png){ width: 300px; }
-![Ink sample generated from random patch 1; relative_z=0](https://github.com/StewartSethA/VesuviusInkGenerator/blob/master/samples/rand[2720, 128, 2784, 192]_0z_99.ink.png){ width: 300px; }
-![Ink sample generated from random patch 2; relative_z=1](https://github.com/StewartSethA/VesuviusInkGenerator/blob/master/samples/rand[2720, 128, 2784, 192]_1z_66.ink.png){ width: 300px; }
-![Ink sample generated from random patch 3; relative_z=27](https://github.com/StewartSethA/VesuviusInkGenerator/blob/master/samples/rand[2720, 128, 2784, 192]_27z_99.ink.png){ width: 300px; }
+<img src="https://github.com/StewartSethA/VesuviusInkGenerator/blob/master/samples/[2720, 128, 2784, 192]_25z_99.ink.png">
 
 Link to download generated ink volumes (as stacks of .png files):
 [Download .zip of generated sample volumes](https://drive.google.com/file/d/173qsupr1McDwvVuHe2lBKoN8WfAQLDaJ/view?usp=sharing)
